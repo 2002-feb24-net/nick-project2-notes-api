@@ -66,7 +66,6 @@ stages:
         projectKey: 2002-feb24-net_nick-project2-notes-api
         projectName: nick-project2-notes-api
         extraProperties: |
-          sonar.exclusions=**/lib/**
           sonar.cs.opencover.reportsPaths=$(Common.TestResultsDirectory)/*/coverage.opencover.xml
       displayName: sonarcloud analysis prepare
 
