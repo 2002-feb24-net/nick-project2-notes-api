@@ -69,17 +69,19 @@ stages:
           sonar.cs.opencover.reportsPaths=$(Common.TestResultsDirectory)/*/coverage.opencover.xml
       displayName: sonarcloud analysis prepare
 
-    - script: dotnet build $(solutionPath)
+    - script: dotnet build
         --configuration $(buildConfiguration)
+      workingDirectory: $(solutionPath)
       displayName: dotnet build
 
-    - script: dotnet test $(solutionPath)
+    - script: dotnet test
         --configuration $(buildConfiguration)
         --logger trx
         --no-build
         --results-directory $(Common.TestResultsDirectory)
         --settings coverlet.runsettings
       continueOnError: true
+      workingDirectory: $(solutionPath)
       displayName: dotnet test
 
     - task: SonarCloudAnalyze@1

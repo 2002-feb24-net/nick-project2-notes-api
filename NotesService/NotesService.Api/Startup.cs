@@ -44,9 +44,9 @@ namespace NotesService.Api
                         .AllowAnyHeader());
             });
 
-            // TODO: verify that we return HTTP status code 406 Not Acceptable
             services.AddControllers(options =>
             {
+                options.ReturnHttpNotAcceptable = true;
                 // remove the default text/plain string formatter to clean up the OpenAPI document
                 options.OutputFormatters.RemoveType<StringOutputFormatter>();
             });
