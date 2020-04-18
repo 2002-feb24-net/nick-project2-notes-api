@@ -53,8 +53,8 @@ stages:
     - task: UseDotNet@2
       inputs:
         packageType: sdk
-        version: $(sdkVersion)
-      displayName: dotnet $(sdkVersion)
+        version: 2.1.x
+      displayName: dotnet 2.1.x
 
     - task: SonarCloudPrepare@1
       inputs:
@@ -66,6 +66,12 @@ stages:
         extraProperties: |
           sonar.cs.opencover.reportsPaths=$(Common.TestResultsDirectory)/*/coverage.opencover.xml
       displayName: sonarcloud analysis prepare
+
+    - task: UseDotNet@2
+      inputs:
+        packageType: sdk
+        version: $(sdkVersion)
+      displayName: dotnet $(sdkVersion)
 
     - script: dotnet build
         --configuration $(buildConfiguration)
