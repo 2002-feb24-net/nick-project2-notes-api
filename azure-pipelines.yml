@@ -34,12 +34,12 @@ stages:
         publishWebProjects: true
         arguments:
           --configuration $(buildConfiguration)
-          --output $(Build.ArtifactStagingDirectory)/publish
+          --output $(Build.ArtifactStagingDirectory)/app
         modifyOutputPath: false
         zipAfterPublish: false
       displayName: dotnet publish
 
-    - publish: $(Build.ArtifactStagingDirectory)/publish
+    - publish: $(Build.ArtifactStagingDirectory)/app
       artifact: app
       displayName: artifact publish app
 
