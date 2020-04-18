@@ -41,12 +41,14 @@ namespace NotesService.DataAccess.Model
                 .HasKey(nt => new { nt.NoteId, nt.TagName });
 
             modelBuilder.Entity<User>().HasData(
-                new User { Id = 1, Name = "Harold" },
-                new User { Id = 2, Name = "Nick" });
+                new User { Id = 1, Name = "Angular client" },
+                new User { Id = 2, Name = "ASP.NET Core MVC client" },
+                new User { Id = 3, Name = "Harold" },
+                new User { Id = 4, Name = "Nick" });
 
             modelBuilder.Entity<Note>().HasData(
-                new Note { Id = 1, AuthorId = 2, Text = "REST stands for representational state transfer", DateModified = new DateTime(2020, 4, 1) },
-                new Note { Id = 2, AuthorId = 1, Text = "C# is an OOP language", DateModified = new DateTime(2020, 4, 9) });
+                new Note { Id = 1, AuthorId = 4, Text = "REST stands for representational state transfer", DateModified = new DateTime(2020, 4, 1) },
+                new Note { Id = 2, AuthorId = 3, Text = "C# is an OOP language", DateModified = new DateTime(2020, 4, 9) });
 
             modelBuilder.Entity<Tag>().HasData(
                 new Tag { Name = "services" },
