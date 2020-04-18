@@ -50,9 +50,7 @@ stages:
 
     steps:
 
-    # disabled because of bug in SonarCloudPrepare task
     - task: UseDotNet@2
-      enabled: false
       inputs:
         packageType: sdk
         version: $(sdkVersion)
@@ -80,8 +78,8 @@ stages:
         --no-build
         --results-directory $(Common.TestResultsDirectory)
         --settings coverlet.runsettings
-      continueOnError: true
       workingDirectory: $(solutionPath)
+      continueOnError: true
       displayName: dotnet test
 
     - task: SonarCloudAnalyze@1
