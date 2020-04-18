@@ -69,50 +69,55 @@ namespace NotesService.DataAccess
             return await _context.Users.AnyAsync(u => u.Id == id);
         }
 
-        public async Task<Core.Note> AddNoteAsync(Core.Note note)
+        public Task<Core.Note> AddNoteAsync(Core.Note note)
         {
             if (note.Author is null)
             {
                 throw new ArgumentException("Note must have author", nameof(note));
             }
 
-            User author = await _context.Users.FindAsync(note.Author.Id);
+            return AddNoteInternalAsync(note);
 
-            if (author is null)
+            async Task<Core.Note> AddNoteInternalAsync(Core.Note note)
             {
-                throw new ArgumentException("Author does not exist", nameof(note));
-            }
+                User author = await _context.Users.FindAsync(note.Author.Id);
 
-            List<string> tags = await _context.Tags.Select(t => t.Name).ToListAsync();
-
-            var newNote = new Note
-            {
-                Id = note.Id,
-                Author = author,
-                Text = note.Text
-            };
-
-            _context.Notes.Add(newNote);
-
-            ISet<string> tagSet = tags.ToHashSet();
-            for (int i = 0; i < note.Tags.Count; i++)
-            {
-                if (!tagSet.Contains(note.Tags[i]))
+                if (author is null)
                 {
-                    _context.Tags.Add(new Tag { Name = note.Tags[i] });
+                    throw new ArgumentException("Author does not exist", nameof(note));
                 }
 
-                newNote.NoteTags.Add(new NoteTag { TagName = note.Tags[i], Order = i });
+                List<string> tags = await _context.Tags.Select(t => t.Name).ToListAsync();
+
+                var newNote = new Note
+                {
+                    Id = note.Id,
+                    Author = author,
+                    Text = note.Text
+                };
+
+                _context.Notes.Add(newNote);
+
+                ISet<string> tagSet = tags.ToHashSet();
+                for (int i = 0; i < note.Tags.Count; i++)
+                {
+                    if (!tagSet.Contains(note.Tags[i]))
+                    {
+                        _context.Tags.Add(new Tag { Name = note.Tags[i] });
+                    }
+
+                    newNote.NoteTags.Add(new NoteTag { TagName = note.Tags[i], Order = i });
+                }
+
+                await _context.SaveChangesAsync();
+
+                return MapNoteWithAuthorAndTags(newNote);
             }
-
-            await _context.SaveChangesAsync();
-
-            return MapNoteWithAuthorAndTags(newNote);
         }
 
-        public async Task<bool> RemoveNoteAsync(int noteId)
+        public async Task<bool> RemoveNoteAsync(int id)
         {
-            Note note = await _context.Notes.FindAsync(noteId);
+            Note note = await _context.Notes.FindAsync(id);
 
             if (note is null)
             {
