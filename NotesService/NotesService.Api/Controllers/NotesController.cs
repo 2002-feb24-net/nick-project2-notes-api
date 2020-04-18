@@ -1,21 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using NotesService.Api.Models;
-using NotesService.Api.Repositories;
+using NotesService.Api.ApiModels;
+using NotesService.Core.Interfaces;
 
 namespace NotesService.Api.Controllers
 {
-    // Route attribute -- attribute routing.
-    //     with attribute routing, [controller] is a placeholder for this controller's name
-    [Route("api/[controller]")] // "prefix all the action methods' routes with /api/notes"
-    [ApiController] // put this on controllers for web APIs to enable various behaviors
-                    // (e.g. - automatic modelstate checking with a 400 Bad Request response on failure)
+    [Route("api/notes")]
     public class NotesController : ControllerBase
     {
         private readonly INoteRepository _noteRepository;
@@ -27,81 +21,66 @@ namespace NotesService.Api.Controllers
 
         // GET: api/notes
         [HttpGet]
-        //[Produces("application/xml")] // this action method only produces xml media type
-        public IActionResult Get([FromQuery] DateTime? since = null)
+        [ProducesResponseType(typeof(IEnumerable<Note>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetAsync([FromQuery] DateTime? since = null)
         {
-            IEnumerable<Note> notes = _noteRepository.GetAll(since);
-            return Ok(notes);
-            // (200 OK response, with the notes serialized in the response body -- instead of some view's HTML)
+            IEnumerable<Core.Note> notes = await _noteRepository.GetNotesAsync(since);
+
+            IEnumerable<Note> resource = notes.Select(Mapper.MapNote);
+            return Ok(resource);
         }
 
         // GET: api/notes/5
-        [HttpGet("{id}")] // 1. this action method's route will append
-                                        // "/{id}" to the controller's overall route, where id is a route parameter
-                                        // 2. the route's name is "Get" so it can be referenced elsewhere
-                                        // 3. only HTTP GET will be routed to this action method.
-        public ActionResult<Note> GetById(int id) // because this says "int", model binding will fail if id wasn't an int
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(Note), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetByIdAsync(int id)
         {
-            if (_noteRepository.GetById(id) is Note note)
+            if (await _noteRepository.GetNoteAsync(id) is Core.Note note)
             {
-                //return StatusCode(StatusCodes.Status500InternalServerError);
-
-                // contentresult gives more control, like this
-                //string json = JsonSerializer.Serialize(note);
-                //return new ContentResult
-                //{
-                //    StatusCode = 200,
-                //    ContentType = "application/json",
-                //    Content = json
-                //};
-
-                return note;
-            }
-            // otherwise it's null, so no such id found
-            return NotFound(); // 404 Not Found response
-        }
-
-        // POST: api/notes
-        [HttpPost]
-        //[Consumes("application/xml")] // this action method won't accept JSON as input, only XML
-        [ProducesResponseType(201, Type = typeof(Note))]
-        [ProducesResponseType(400)]
-        public IActionResult Post([FromBody] Note note)
-        {
-            // this code here is effectively automatic because of ApiControllerAttribute
-            // if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            _noteRepository.Add(note);
-            // id is now set
-            return CreatedAtAction(nameof(GetById), new { id = note.Id }, note);
-        }
-
-        // ignores changing the tags
-        // PUT: api/notes/5
-        [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] Note note)
-        {
-            // successful update for PUT returns 204 No Content with empty body, or 200 OK
-            if (_noteRepository.GetById(id) is Note oldNote)
-            {
-                oldNote.DateModified = DateTime.Now;
-                oldNote.Author = note.Author;
-                oldNote.IsPublic = note.IsPublic;
-                oldNote.Text = note.Text;
-                return NoContent();
-                //return StatusCode(204);
+                Note resource = Mapper.MapNote(note);
+                return Ok(resource);
             }
             return NotFound();
         }
 
+        // POST: api/notes
+        [HttpPost]
+        [ProducesResponseType(typeof(Note), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> PostAsync(NewNote newNote)
+        {
+            if (await _noteRepository.GetUserAsync(newNote.AuthorId) is Core.User author)
+            {
+                var note = new Core.Note
+                {
+                    Author = author,
+                    Text = newNote.Text,
+                    Tags = newNote.Tags
+                };
+
+                Core.Note result = await _noteRepository.AddNoteAsync(note);
+
+                Note resource = Mapper.MapNote(result);
+                return CreatedAtAction(nameof(GetByIdAsync), new { id = note.Id }, resource);
+            }
+
+            ModelState.AddModelError(nameof(newNote.AuthorId), "User does not exist");
+            return BadRequest(ModelState);
+        }
+
         // DELETE: api/notes/5
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteAsync(int id)
         {
-            // successful DELETE returns 204 No Content with empty body
-            if (_noteRepository.GetById(id) is Note note)
+            if (await _noteRepository.RemoveNoteAsync(id))
             {
-                _noteRepository.Remove(note);
                 return NoContent();
             }
             return NotFound();

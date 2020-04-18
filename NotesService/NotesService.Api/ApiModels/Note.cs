@@ -1,22 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace NotesService.Api.Models
+namespace NotesService.Api.ApiModels
 {
     public class Note
     {
         public int Id { get; set; }
 
-        public User Author { get; set; }
-
-        public bool IsPublic { get; set; }
+        public int AuthorId { get; set; }
 
         public string Text { get; set; }
 
         public DateTime DateModified { get; set; } = DateTime.Now;
 
-        public List<Tag> Tags { get; set; } = new List<Tag>();
+        public List<string> Tags { get; set; }
     }
 }

@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using NotesService.Api.Repositories;
+using NotesService.Api.ApiModels;
+using NotesService.Core.Interfaces;
 
 namespace NotesService.Api.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
+    [Route("api/users")]
     public class UsersController : ControllerBase
     {
         private readonly INoteRepository _noteRepository;
@@ -20,22 +19,35 @@ namespace NotesService.Api.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        [ProducesResponseType(typeof(IEnumerable<User>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetAllAsync()
         {
-            return Ok(_noteRepository.GetAllUsers());
+            IEnumerable<Core.User> users = await _noteRepository.GetUsersAsync();
+
+            IEnumerable<User> resource = users.Select(u => new User
+            {
+                Id = u.Id,
+                Name = u.Name
+            });
+
+            return Ok(resource);
         }
 
         [HttpGet("{userId}/notes")]
-        public IActionResult GetNotes(int userId)
+        [ProducesResponseType(typeof(IEnumerable<Note>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetNotesAsync(int userId)
         {
-            try
-            {
-                return Ok(_noteRepository.GetAllByUser(userId));
-            }
-            catch (InvalidOperationException)
+            if (!await _noteRepository.UserExistsAsync(userId))
             {
                 return NotFound();
             }
+
+            IEnumerable<Core.Note> notes = await _noteRepository.GetNotesAsync(authorId: userId);
+
+            IEnumerable<Note> resource = notes.Select(Mapper.MapNote);
+            return Ok(resource);
         }
     }
 }
