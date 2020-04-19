@@ -52,7 +52,7 @@ namespace NotesService.Api
                 options.OutputFormatters.RemoveType<StringOutputFormatter>();
 
                 options.ReturnHttpNotAcceptable = true;
-                options.SuppressAsyncSuffixInActionNames = true;
+                options.SuppressAsyncSuffixInActionNames = false;
             });
         }
 
