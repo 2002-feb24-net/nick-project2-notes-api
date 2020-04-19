@@ -48,9 +48,11 @@ namespace NotesService.Api
 
             services.AddControllers(options =>
             {
-                options.ReturnHttpNotAcceptable = true;
                 // remove the default text/plain string formatter to clean up the OpenAPI document
                 options.OutputFormatters.RemoveType<StringOutputFormatter>();
+
+                options.ReturnHttpNotAcceptable = true;
+                options.SuppressAsyncSuffixInActionNames = true;
             });
         }
 
