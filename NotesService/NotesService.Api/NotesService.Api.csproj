@@ -3,9 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UserSecretsId>8b66b2db-a4ba-4ed9-984c-9f00eb46db0d</UserSecretsId>
+    <ApplicationInsightsResourceId>/subscriptions/0518cd5b-d389-4983-9496-cdcae31dcc60/resourcegroups/2002-training/providers/microsoft.insights/components/2002-notes-api</ApplicationInsightsResourceId>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.12.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -17,6 +19,10 @@
   <ItemGroup>
     <ProjectReference Include="..\NotesService.Core\NotesService.Core.csproj" />
     <ProjectReference Include="..\NotesService.DataAccess\NotesService.DataAccess.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services" />
   </ItemGroup>
 
 

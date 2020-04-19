@@ -25,6 +25,8 @@ namespace NotesService.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddApplicationInsightsTelemetry();
+
             services.AddDbContext<NotesContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("NotesDb")));
 
