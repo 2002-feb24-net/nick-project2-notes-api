@@ -131,8 +131,7 @@ stages:
               dockerRegistryEndpoint: 'dockerhub-nicholasescalona'
               dockerComposeFile: 'docker-compose.yml'
               action: 'Push services'
-              arguments: 'web'
-            displayName: docker-compose push web
+            displayName: docker-compose push
 
           - task: AzureWebAppContainer@1
             inputs:
