@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using NotesService.Core.Interfaces;
 using NotesService.DataAccess;
@@ -23,13 +21,9 @@ namespace NotesService.Api
         private const string PostgreSqlConnection = "NotesDbPostgreSql";
         private const string CorsPolicyName = "AllowConfiguredOrigins";
 
-        //private readonly ILogger<Startup> _logger;
-
-        //public Startup(IConfiguration configuration, ILogger<Startup> logger)
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            //_logger = logger;
         }
 
         public IConfiguration Configuration { get; }
@@ -45,34 +39,28 @@ namespace NotesService.Api
             string whichDb = Configuration["DatabaseConnection"];
             if (whichDb is null)
             {
-                //_logger.LogWarning($"No configuration found for \"DatabaseConnection\"; assuming default \"{SqlServerConnection}\".");
+                // assuming default set by SqlServerConnection
                 whichDb = SqlServerConnection;
             }
 
             string connection = Configuration.GetConnectionString(whichDb);
             if (connection is null)
             {
-                string message = $"No value found for \"{whichDb}\" connection; unable to connect to a database.";
-                //_logger.LogCritical(message);
-                throw new InvalidOperationException(message);
+                throw new InvalidOperationException($"No value found for \"{whichDb}\" connection; unable to connect to a database.");
             }
-
-            //_logger.LogInformation($"Using \"{whichDb}\" connection.");
 
             switch (whichDb)
             {
                 case PostgreSqlConnection:
-                    //_logger.LogInformation($"Using PostgreSQL.");
                     services.AddDbContext<NotesContext>(options =>
                         options.UseNpgsql(connection));
                     break;
                 case SqlServerConnection:
-                    //_logger.LogInformation($"Using SQL Server.");
                     services.AddDbContext<NotesContext>(options =>
                         options.UseSqlServer(connection));
                     break;
                 default:
-                    //_logger.LogWarning($"Unexpected connection \"{whichDb}\" assumed to be SQL Server.");
+                    // unexpected connection, assumed to be SQL Server
                     services.AddDbContext<NotesContext>(options =>
                         options.UseSqlServer(connection));
                     break;
@@ -88,20 +76,11 @@ namespace NotesService.Api
             // support switching between database providers using runtime configuration
 
             var allowedOrigins = Configuration.GetSection("CorsOrigins").Get<string[]>();
-            if (allowedOrigins?.Length > 0)
-            {
-                //_logger.LogInformation($"Origins allowed by CORS policy: {string.Join(", ", allowedOrigins.Select(x => $"\"{x}\""))}");
-            }
-            else
-            {
-                //_logger.LogError("No origins allowed for CORS.");
-                allowedOrigins = Array.Empty<string>();
-            }
 
             services.AddCors(options =>
             {
                 options.AddPolicy(CorsPolicyName, builder =>
-                    builder.WithOrigins(allowedOrigins)
+                    builder.WithOrigins(allowedOrigins ?? Array.Empty<string>())
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials());
