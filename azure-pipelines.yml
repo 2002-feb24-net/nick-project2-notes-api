@@ -8,11 +8,6 @@ stages:
 
 - stage: build
 
-  variables:
-    sdkVersion: 3.1.x
-    solutionPath: NotesService
-    buildConfiguration: Release
-
   jobs:
 
   - job: build
@@ -22,55 +17,45 @@ stages:
 
     steps:
 
-    - task: UseDotNet@2
+    - task: DockerCompose@0
       inputs:
-        packageType: sdk
-        version: $(sdkVersion)
-      displayName: dotnet $(sdkVersion)
-
-    - task: DotNetCoreCLI@2
-      inputs:
-        command: publish
-        publishWebProjects: true
-        arguments:
-          --configuration $(buildConfiguration)
-          --output $(Build.ArtifactStagingDirectory)/app
-        modifyOutputPath: false
-        zipAfterPublish: false
-      displayName: dotnet publish
-
-    - publish: $(Build.ArtifactStagingDirectory)/app
-      artifact: app
-      displayName: artifact publish app
+        containerregistrytype: 'Container Registry'
+        dockerComposeFile: 'docker-compose.yml'
+        action: 'Build services'
+      displayName: docker-compose build
 
   - job: test
 
     pool:
       vmImage: ubuntu-latest
 
+    variables:
+      sdkVersion: 3.1.x
+      solutionPath: NotesService
+      buildConfiguration: Release
+
     steps:
 
     - task: UseDotNet@2
       inputs:
-        packageType: sdk
-        version: 2.1.x
+        packageType: 'sdk'
+        version: '2.1.x'
       displayName: dotnet 2.1.x
 
     - task: SonarCloudPrepare@1
       inputs:
-        SonarCloud: sonarcloud-escalonn
-        organization: 2002-feb24-net
-        scannerMode: MSBuild
-        projectKey: 2002-feb24-net_nick-project2-notes-api
-        projectName: nick-project2-notes-api
-        extraProperties: |
-          sonar.cs.opencover.reportsPaths=$(Common.TestResultsDirectory)/*/coverage.opencover.xml
+        SonarCloud: 'sonarcloud-escalonn'
+        organization: '2002-feb24-net'
+        scannerMode: 'MSBuild'
+        projectKey: '2002-feb24-net_nick-project2-notes-api'
+        projectName: 'nick-project2-notes-api'
+        extraProperties: 'sonar.cs.opencover.reportsPaths=$(Common.TestResultsDirectory)/*/coverage.opencover.xml'
       displayName: sonarcloud analysis prepare
 
     - task: UseDotNet@2
       inputs:
-        packageType: sdk
-        version: $(sdkVersion)
+        packageType: 'sdk'
+        version: '$(sdkVersion)'
       displayName: dotnet $(sdkVersion)
 
     - script: dotnet build
@@ -94,8 +79,8 @@ stages:
     - task: PublishTestResults@2
       condition: succeededOrFailed()
       inputs:
-        testRunner: VSTest
-        testResultsFiles: $(Common.TestResultsDirectory)/*.trx
+        testResultsFormat: 'VSTest'
+        testResultsFiles: '$(Common.TestResultsDirectory)/*.trx'
       displayName: test results build publish
 
     - task: PublishCodeCoverageResults@1
@@ -107,6 +92,8 @@ stages:
 
     - task: SonarCloudPublish@1
       condition: succeededOrFailed()
+      inputs:
+        pollingTimeoutSec: '300'
       displayName: sonarcloud results build publish
 
 - stage: deploy
@@ -127,15 +114,25 @@ stages:
         deploy:
           steps:
 
-          - download: current
-            artifact: app
-            displayName: artifact download app
-
-          - task: AzureRmWebAppDeployment@4
+          - task: DockerCompose@0
             inputs:
-              ConnectionType: AzureRM
-              azureSubscription: Pay-As-You-Go(0518cd5b-d389-4983-9496-cdcae31dcc60)
-              appType: webApp
-              WebAppName: 2002-notes-api
-              packageForLinux: $(Pipeline.Workspace)/app
+              containerregistrytype: 'Container Registry'
+              dockerComposeFile: 'docker-compose.yml'
+              action: 'Build services'
+            displayName: docker-compose build
+
+          - task: DockerCompose@0
+            inputs:
+              containerregistrytype: 'Container Registry'
+              dockerRegistryEndpoint: 'dockerhub-nicholasescalona'
+              dockerComposeFile: 'docker-compose.yml'
+              action: 'Push services'
+              arguments: 'web'
+            displayName: docker-compose push web
+
+          - task: AzureWebAppContainer@1
+            inputs:
+              azureSubscription: 'Pay-As-You-Go(0518cd5b-d389-4983-9496-cdcae31dcc60)'
+              appName: '2002-notes-api-docker'
+              multicontainerConfigFile: 'docker-compose.yml'
             displayName: azure app service deploy
