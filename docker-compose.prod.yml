@@ -1,13 +1,10 @@
-# api accessible at localhost:8000 / 192.168.99.100:8000
-# db accessible at localhost:5432 / 192.168.99.100:5432
-
 version: '3.7'
 
 services:
 
   web:
     build: NotesService
-    image: 2002-notes-api:1.0
+    image: nicholasescalona/2002-notes-api:1.0
     depends_on:
       - data
     ports:
@@ -19,12 +16,11 @@ services:
       ConnectionStrings__NotesDbPostgreSql: Host=data;Database=NotesDb;Username=postgres;Password=Pass@word
       EnsureDatabaseCreated: 'true'
       CorsOrigins__0: http://localhost:4200
+      CorsOrigins__1: https://2002-ng-notes-client.azurewebsites.net
       UseHttpsRedirection: 'false'
 
   data:
     image: postgres:12.0
-    ports:
-      - 5432:5432
     networks:
       - default
     environment:

@@ -103,7 +103,10 @@ namespace NotesService.Api
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            if (Configuration.GetValue("UseHttpsRedirection", defaultValue: true) is true)
+            {
+                app.UseHttpsRedirection();
+            }
 
             app.UseRouting();
 
