@@ -17,8 +17,6 @@ namespace NotesService.Api
 {
     public class Startup
     {
-        private const string SqlServerConnection = "NotesDb";
-        private const string PostgreSqlConnection = "NotesDbPostgreSql";
         private const string CorsPolicyName = "AllowConfiguredOrigins";
 
         public Startup(IConfiguration configuration)
@@ -39,8 +37,7 @@ namespace NotesService.Api
             string whichDb = Configuration["DatabaseConnection"];
             if (whichDb is null)
             {
-                // assuming default set by SqlServerConnection
-                whichDb = SqlServerConnection;
+                throw new InvalidOperationException($"No value found for \"DatabaseConnection\"; unable to connect to a database.");
             }
 
             string connection = Configuration.GetConnectionString(whichDb);
@@ -49,21 +46,15 @@ namespace NotesService.Api
                 throw new InvalidOperationException($"No value found for \"{whichDb}\" connection; unable to connect to a database.");
             }
 
-            switch (whichDb)
+            if (whichDb.Contains("PostgreSql", StringComparison.InvariantCultureIgnoreCase))
             {
-                case PostgreSqlConnection:
-                    services.AddDbContext<NotesContext>(options =>
-                        options.UseNpgsql(connection));
-                    break;
-                case SqlServerConnection:
-                    services.AddDbContext<NotesContext>(options =>
-                        options.UseSqlServer(connection));
-                    break;
-                default:
-                    // unexpected connection, assumed to be SQL Server
-                    services.AddDbContext<NotesContext>(options =>
-                        options.UseSqlServer(connection));
-                    break;
+                services.AddDbContext<NotesContext>(options =>
+                    options.UseNpgsql(connection));
+            }
+            else
+            {
+                services.AddDbContext<NotesContext>(options =>
+                    options.UseSqlServer(connection));
             }
 
             services.AddScoped<INoteRepository, NoteRepository>();

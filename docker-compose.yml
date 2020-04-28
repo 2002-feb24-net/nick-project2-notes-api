@@ -1,3 +1,8 @@
+# to run api and db in docker (debugger not possible): docker-compose --build up
+
+# to run db in docker and api outside docker (debugger possible): docker-compose up data
+#   and if you have Docker Desktop, set in user secrets: "DatabaseConnection": "NotesDbPostgreSqlDockerDesktop"
+
 # api accessible at localhost:8000 / 192.168.99.100:8000
 # db accessible at localhost:5432 / 192.168.99.100:5432
 
@@ -15,8 +20,8 @@ services:
     networks:
       - default
     environment:
-      DatabaseConnection: NotesDbPostgreSql
-      ConnectionStrings__NotesDbPostgreSql: Host=data;Database=NotesDb;Username=postgres;Password=Pass@word
+      DatabaseConnection: NotesDbPostgreSqlDockerCompose
+      ConnectionStrings__NotesDbPostgreSqlDockerCompose: Host=data;Database=NotesDb;Username=postgres;Password=Pass@word
       EnsureDatabaseCreated: 'true'
       CorsOrigins__0: http://localhost:4200
       UseHttpsRedirection: 'false'

@@ -12,8 +12,8 @@ services:
     networks:
       - default
     environment:
-      DatabaseConnection: NotesDbPostgreSql
-      ConnectionStrings__NotesDbPostgreSql: Host=data;Database=NotesDb;Username=postgres;Password=Pass@word
+      DatabaseConnection: NotesDbPostgreSqlDockerCompose
+      ConnectionStrings__NotesDbPostgreSqlDockerCompose: Host=data;Database=NotesDb;Username=postgres;Password=Pass@word
       EnsureDatabaseCreated: 'true'
       CorsOrigins__0: http://localhost:4200
       CorsOrigins__1: https://2002-ng-notes-client.azurewebsites.net
