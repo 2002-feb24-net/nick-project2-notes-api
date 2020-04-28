@@ -29,10 +29,12 @@ namespace NotesService.DataAccess.Model
                 .Property(n => n.Text)
                 .IsRequired();
 
+            // modelBuilder.Entity<Note>()
+            //     .Property(n => n.DateModified)
+            //     .HasColumnType("DATETIME2")
+            //     .HasDefaultValueSql("SYSUTCDATETIME()");
             modelBuilder.Entity<Note>()
-                .Property(n => n.DateModified)
-                .HasColumnType("DATETIME2")
-                .HasDefaultValueSql("SYSUTCDATETIME()");
+                .Property(n => n.DateModified);
 
             modelBuilder.Entity<Tag>()
                 .HasKey(n => n.Name);

@@ -9,13 +9,14 @@ services:
     depends_on:
       - data
     ports:
-      - 80:80
+      - 8000:80
     networks:
       - default
     environment:
       DatabaseConnection: NotesDbPostgreSql
       ConnectionStrings__NotesDbPostgreSql: Host=data;Database=NotesDb;Username=postgres;Password=Pass@word
       CorsOrigins__0: https://2002-ng-notes-client.azurewebsites.net
+      EnsureDatabaseCreated: 'true'
 
   data:
     image: postgres:12.0
