@@ -139,3 +139,10 @@ stages:
               appName: '2002-notes-api-docker'
               multicontainerConfigFile: 'docker-compose.prod.yml'
             displayName: azure app service deploy
+
+          - task: AzureAppServiceManage@0
+            inputs:
+              azureSubscription: 'Pay-As-You-Go(0518cd5b-d389-4983-9496-cdcae31dcc60)'
+              Action: 'Restart Azure App Service'
+              WebAppName: '2002-notes-api-docker'
+            displayName: azure app service restart
