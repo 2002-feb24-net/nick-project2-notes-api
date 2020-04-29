@@ -70,7 +70,6 @@ stages:
         --results-directory $(Common.TestResultsDirectory)
         --settings coverlet.runsettings
       workingDirectory: $(solutionPath)
-      continueOnError: true
       displayName: dotnet test
 
     - task: SonarCloudAnalyze@1
