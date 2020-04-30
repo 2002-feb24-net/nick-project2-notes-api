@@ -18,6 +18,7 @@ services:
       CorsOrigins__0: http://localhost:4200
       CorsOrigins__1: http://192.168.99.100:4200
       CorsOrigins__2: https://2002-ng-notes-client.azurewebsites.net
+      CorsOrigins__3: https://2002-ng-notes-client-docker.azurewebsites.net
       UseHttpsRedirection: 'false'
 
   data:
