@@ -1,4 +1,4 @@
-# to run api and db in docker (debugger not possible): docker-compose --build up
+# to run api and db in docker (debugger not possible): docker-compose up --build
 
 # to run db in docker and api outside docker (debugger possible): docker-compose up data
 #   and if you have Docker Desktop, set in user secrets: "DatabaseConnection": "NotesDbPostgreSqlDockerDesktop"
