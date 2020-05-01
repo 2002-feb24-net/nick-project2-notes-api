@@ -137,7 +137,8 @@ stages:
               action: 'deploy'
               kubernetesServiceConnection: 'dev-default-1588365583732'
               namespace: 'default'
-              manifests: 'k8s'
+              manifests: 'k8s/**/*.yml'
+            displayName: kubectl apply
 
           - task: Kubernetes@1
             inputs:
@@ -149,3 +150,4 @@ stages:
               arguments: 'restart'
               secretType: 'dockerRegistry'
               containerRegistryType: 'Azure Container Registry'
+            displayName: kubectl rollout restart
