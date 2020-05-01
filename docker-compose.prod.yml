@@ -3,7 +3,9 @@ version: '3.7'
 services:
 
   web:
-    build: NotesService
+    build:
+      context: NotesService
+      dockerfile: api.Dockerfile
     image: nicholasescalona/2002-notes-api:1.0
     depends_on:
       - data
@@ -25,11 +27,12 @@ services:
       UseHttpsRedirection: 'false'
 
   data:
-    image: postgres:12.0
+    build:
+      context: NotesService
+      dockerfile: db.Dockerfile
+    image: nicholasescalona/2002-notes-db:1.0
     networks:
       - default
-    environment:
-      POSTGRES_PASSWORD: Pass@word
 
 networks:
   default:
