@@ -21,6 +21,7 @@ services:
       CorsOrigins__3: https://2002-ng-notes-client.azurewebsites.net
       CorsOrigins__4: http://2002-ng-notes-client-docker.azurewebsites.net
       CorsOrigins__5: https://2002-ng-notes-client-docker.azurewebsites.net
+      CorsOrigins__6: http://52.248.93.156
       UseHttpsRedirection: 'false'
 
   data:

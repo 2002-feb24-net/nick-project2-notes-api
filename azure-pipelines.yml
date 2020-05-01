@@ -132,9 +132,20 @@ stages:
               action: 'Push services'
             displayName: docker-compose push
 
-          - task: AzureWebAppContainer@1
+          - task: KubernetesManifest@0
             inputs:
-              azureSubscription: 'Pay-As-You-Go(0518cd5b-d389-4983-9496-cdcae31dcc60)'
-              appName: '2002-notes-api-docker'
-              multicontainerConfigFile: 'docker-compose.prod.yml'
-            displayName: azure app service deploy
+              action: 'deploy'
+              kubernetesServiceConnection: 'dev-default-1588365583732'
+              namespace: 'default'
+              manifests: 'k8s'
+
+          - task: Kubernetes@1
+            inputs:
+              connectionType: 'Kubernetes Service Connection'
+              kubernetesServiceEndpoint: 'dev-default-1588365583732'
+              command: 'rollout'
+              useConfigurationFile: true
+              configuration: 'k8s/deployment'
+              arguments: 'restart'
+              secretType: 'dockerRegistry'
+              containerRegistryType: 'Azure Container Registry'

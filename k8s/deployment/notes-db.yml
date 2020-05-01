@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notes-db
+  labels:
+    app: notes
+    role: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notes
+      role: db
+  template:
+    metadata:
+      labels:
+        app: notes
+        role: db
+    spec:
+      containers:
+      - name: notes-db
+        image: postgres:12.0
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_PASSWORD
+          value: Pass@word

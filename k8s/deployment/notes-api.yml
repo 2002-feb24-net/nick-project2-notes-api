@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notes-api
+  labels:
+    app: notes
+    role: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notes
+      role: api
+  template:
+    metadata:
+      labels:
+        app: notes
+        role: api
+    spec:
+      containers:
+      - name: notes-api
+        image: nicholasescalona/2002-notes-api:1.0
+        ports:
+        - containerPort: 80
+        env:
+        - name: DatabaseConnection
+          value: NotesDbPostgreSqlK8s
+        - name: ConnectionStrings__NotesDbPostgreSqlK8s
+          value: Host=notes-db;Database=NotesDb;Username=postgres;Password=Pass@word
+        - name: EnsureDatabaseCreated
+          value: 'true'
+        - name: CorsOrigins__0
+          value: http://localhost:4200
+        - name: CorsOrigins__1
+          value: http://192.168.99.100:4200
+        - name: CorsOrigins__2
+          value: http://2002-ng-notes-client.azurewebsites.net
+        - name: CorsOrigins__3
+          value: https://2002-ng-notes-client.azurewebsites.net
+        - name: CorsOrigins__4
+          value: http://2002-ng-notes-client-docker.azurewebsites.net
+        - name: CorsOrigins__5
+          value: https://2002-ng-notes-client-docker.azurewebsites.net
+        - name: CorsOrigins__6
+          value: http://52.153.113.85
+        - name: UseHttpsRedirection
+          value: 'false'
