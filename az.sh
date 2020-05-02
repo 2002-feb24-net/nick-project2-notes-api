@@ -59,18 +59,16 @@
     # fill in the server url given by the cluster owner
     # default namespace
 
-    # get the secret name
-    kubectl get secrets --field-selector type=kubernetes.io/service-account-token -o jsonpath={.items[0].metadata.name}
-
-    # fill in secret name based on previous command
-    # copy the secret's data to the clipboard (to enter in azure pipelines)
-    kubectl get secret default-token-00000 -o json | clip
+    # follow the directions to get the secret value (it needs more data than just the token).
+    # the service account name is default and the namespace is default.
 
     # accept untrusted certificates
 
 # from then on, pipeline needs to:
 # 1. kubectl apply -f k8s -R
+# (apply all the manifests recursively in that folder)
 # 2. kubectl rollout restart -f k8s/deployment
+# (restart the deployments to pick up new docker images)
 # (except there are azure pipelines tasks to wrap those commands and connect to the k8s resource, as seen in the pipeline in this repo)
 
 # the second step is necessary so long as new images are being pushed with the same tags,
