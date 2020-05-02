@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace NotesService.DataAccess.Migrations
 {
@@ -23,7 +24,7 @@ namespace NotesService.DataAccess.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
@@ -36,10 +37,10 @@ namespace NotesService.DataAccess.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     AuthorId = table.Column<int>(nullable: false),
                     Text = table.Column<string>(nullable: false),
-                    DateModified = table.Column<DateTime>(type: "DATETIME2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
+                    DateModified = table.Column<DateTime>(nullable: false),
                     TagName = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -99,34 +100,30 @@ namespace NotesService.DataAccess.Migrations
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { 1, "Harold" },
-                    { 2, "Nick" }
+                    { 1, "Angular client" },
+                    { 2, "ASP.NET Core MVC client" },
+                    { 3, "Harold" },
+                    { 4, "Nick" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Notes",
                 columns: new[] { "Id", "AuthorId", "DateModified", "TagName", "Text" },
-                values: new object[] { 2, 1, new DateTime(2020, 4, 9, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "C# is an OOP language" });
-
-            migrationBuilder.InsertData(
-                table: "Notes",
-                columns: new[] { "Id", "AuthorId", "DateModified", "TagName", "Text" },
-                values: new object[] { 1, 2, new DateTime(2020, 4, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "REST stands for representational state transfer" });
-
-            migrationBuilder.InsertData(
-                table: "NoteTags",
-                columns: new[] { "NoteId", "TagName", "Order" },
-                values: new object[] { 2, "basic", 0 });
+                values: new object[,]
+                {
+                    { 2, 3, new DateTime(2020, 4, 9, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "C# is an OOP language" },
+                    { 1, 4, new DateTime(2020, 4, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "REST stands for representational state transfer" }
+                });
 
             migrationBuilder.InsertData(
                 table: "NoteTags",
                 columns: new[] { "NoteId", "TagName", "Order" },
-                values: new object[] { 1, "services", 0 });
-
-            migrationBuilder.InsertData(
-                table: "NoteTags",
-                columns: new[] { "NoteId", "TagName", "Order" },
-                values: new object[] { 1, "basic", 0 });
+                values: new object[,]
+                {
+                    { 2, "basic", 0 },
+                    { 1, "services", 0 },
+                    { 1, "basic", 0 }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notes_AuthorId",
