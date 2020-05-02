@@ -11,6 +11,7 @@ using Microsoft.OpenApi.Models;
 using NotesService.Core.Interfaces;
 using NotesService.DataAccess;
 using NotesService.DataAccess.Model;
+using Serilog;
 
 [assembly: ApiController]
 namespace NotesService.Api
@@ -93,6 +94,8 @@ namespace NotesService.Api
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseSerilogRequestLogging();
 
             if (Configuration.GetValue("UseHttpsRedirection", defaultValue: true) is true)
             {
