@@ -11,6 +11,7 @@ using Microsoft.OpenApi.Models;
 using NotesService.Core.Interfaces;
 using NotesService.DataAccess;
 using NotesService.DataAccess.Model;
+using Serilog;
 
 [assembly: ApiController]
 namespace NotesService.Api
@@ -28,8 +29,6 @@ namespace NotesService.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddApplicationInsightsTelemetry();
-
             // switch between database providers using runtime configuration
             // (the existing migrations are SQL-Server-specific, but the model itself is not)
 
@@ -93,6 +92,8 @@ namespace NotesService.Api
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseSerilogRequestLogging();
 
             if (Configuration.GetValue("UseHttpsRedirection", defaultValue: true) is true)
             {
