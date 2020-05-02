@@ -16,7 +16,6 @@ services:
     environment:
       DatabaseConnection: NotesDbPostgreSqlDockerCompose
       ConnectionStrings__NotesDbPostgreSqlDockerCompose: Host=data;Database=NotesDb;Username=postgres;Password=Pass@word
-      EnsureDatabaseCreated: 'true'
       CorsOrigins__0: http://localhost:4200
       CorsOrigins__1: http://192.168.99.100:4200
       CorsOrigins__2: http://2002-ng-notes-client.azurewebsites.net
