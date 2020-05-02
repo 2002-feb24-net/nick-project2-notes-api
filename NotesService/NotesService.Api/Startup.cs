@@ -29,8 +29,6 @@ namespace NotesService.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddApplicationInsightsTelemetry();
-
             // switch between database providers using runtime configuration
             // (the existing migrations are SQL-Server-specific, but the model itself is not)
 
