@@ -40,6 +40,6 @@ spec:
         - name: CorsOrigins__5
           value: https://2002-ng-notes-client-docker.azurewebsites.net
         - name: CorsOrigins__6
-          value: http://52.153.113.85
+          value: http://13.66.91.51
         - name: UseHttpsRedirection
           value: 'false'
