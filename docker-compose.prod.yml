@@ -1,3 +1,6 @@
+# this file is now only used for the pipeline to build and push, not to run.
+# so nothing but these lines are needed.
+
 version: '3.7'
 
 services:
@@ -7,31 +10,9 @@ services:
       context: NotesService
       dockerfile: api.Dockerfile
     image: nicholasescalona/2002-notes-api:1.0
-    depends_on:
-      - data
-    ports:
-      - 80:80
-    networks:
-      - default
-    environment:
-      DatabaseConnection: NotesDbPostgreSqlDockerCompose
-      ConnectionStrings__NotesDbPostgreSqlDockerCompose: Host=data;Database=NotesDb;Username=postgres;Password=Pass@word
-      CorsOrigins__0: http://localhost:4200
-      CorsOrigins__1: http://192.168.99.100:4200
-      CorsOrigins__2: http://2002-ng-notes-client.azurewebsites.net
-      CorsOrigins__3: https://2002-ng-notes-client.azurewebsites.net
-      CorsOrigins__4: http://2002-ng-notes-client-docker.azurewebsites.net
-      CorsOrigins__5: https://2002-ng-notes-client-docker.azurewebsites.net
-      CorsOrigins__6: http://52.248.93.156
-      UseHttpsRedirection: 'false'
 
   data:
     build:
       context: NotesService
       dockerfile: db.Dockerfile
     image: nicholasescalona/2002-notes-db:1.0
-    networks:
-      - default
-
-networks:
-  default:
