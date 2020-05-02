@@ -26,9 +26,7 @@ spec:
         - name: DatabaseConnection
           value: NotesDbPostgreSqlK8s
         - name: ConnectionStrings__NotesDbPostgreSqlK8s
-          value: Host=notes-db;Database=NotesDb;Username=postgres;Password=Pass@word
-        - name: EnsureDatabaseCreated
-          value: 'true'
+          value: Host=notes-db;Username=postgres;Password=Pass@word
         - name: CorsOrigins__0
           value: http://localhost:4200
         - name: CorsOrigins__1
