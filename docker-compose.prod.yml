@@ -6,7 +6,5 @@ version: '3.7'
 services:
 
   web:
-    build:
-      context: NotesService
-      dockerfile: api.Dockerfile
+    build: NotesService
     image: nicholasescalona/2002-notes-api:1.0
