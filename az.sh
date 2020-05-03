@@ -75,3 +75,15 @@
 # instead of different tags with the manifest being transformed at build-time to use the appropriately image tag.
 # so long as the manifest is the same byte-for-byte, kubectl apply won't result in any pods restarting with the latest image.
 # (that alternative would be better practice, but is more work to setup with the pipeline)
+
+# to check on the running app:
+
+    # get pods with label app = notes.
+    kubectl get pods -l app=notes
+
+    # get logs from pods with label app = notes and role = api
+    kubectl logs -l app=notes,role=api
+    # if multiple pods match, the logs might not be in chronological order
+
+    # use -f to follow
+    # pass a pod name instead of -l... to get the logs of a particular pod
