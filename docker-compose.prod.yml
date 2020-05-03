@@ -9,10 +9,10 @@ services:
     build:
       context: NotesService
       dockerfile: api.Dockerfile
-    image: nicholasescalona/2002-notes-api:${TAG}
+    image: ${IMAGENAMEPREFIX}2002-notes-api:${TAG}
 
   data:
     build:
       context: NotesService
       dockerfile: db.Dockerfile
-    image: nicholasescalona/2002-notes-db:${TAG}
+    image: ${IMAGENAMEPREFIX}2002-notes-db:${TAG}
