@@ -4,6 +4,10 @@ trigger:
 pr:
 - master
 
+variables:
+  version: '1.0'
+  imageNamePrefix: nicholasescalona/
+
 stages:
 
 - stage: build
@@ -21,8 +25,24 @@ stages:
       inputs:
         containerregistrytype: 'Container Registry'
         dockerComposeFile: 'docker-compose.prod.yml'
+        dockerComposeFileArgs: 'TAG=$(version)-$(Build.BuildNumber)'
         action: 'Build services'
       displayName: docker-compose build
+
+    - task: DockerCompose@0
+      inputs:
+        containerregistrytype: 'Container Registry'
+        dockerRegistryEndpoint: 'dockerhub-nicholasescalona'
+        dockerComposeFile: 'docker-compose.prod.yml'
+        dockerComposeFileArgs: 'TAG=$(version)-$(Build.BuildNumber)'
+        action: 'Push services'
+      displayName: docker-compose push
+
+    - script: find k8s/deployment -type f | xargs sed -Ei 's|([a-z0-9._-]*:)rewrite$|$(imageNamePrefix)\1$(version)-$(Build.BuildNumber)|g'
+      displayName: k8s manifest rewrite
+
+    - publish: k8s
+      artifact: k8s
 
   - job: test
 
@@ -113,31 +133,15 @@ stages:
         deploy:
           steps:
 
-          - checkout: self
-
-          - download: none
-
-          - task: DockerCompose@0
-            inputs:
-              containerregistrytype: 'Container Registry'
-              dockerComposeFile: 'docker-compose.prod.yml'
-              action: 'Build services'
-            displayName: docker-compose build
-
-          - task: DockerCompose@0
-            inputs:
-              containerregistrytype: 'Container Registry'
-              dockerRegistryEndpoint: 'dockerhub-nicholasescalona'
-              dockerComposeFile: 'docker-compose.prod.yml'
-              action: 'Push services'
-            displayName: docker-compose push
+          - download: current
+            artifact: k8s
 
           - task: KubernetesManifest@0
             inputs:
               action: 'deploy'
               kubernetesServiceConnection: 'dev-default-1588463473433'
               namespace: 'default'
-              manifests: 'k8s/**/*.yml'
+              manifests: '$(Pipeline.Workspace)/k8s/**/*.yml'
             displayName: kubectl apply
 
           - task: Kubernetes@1
@@ -146,7 +150,7 @@ stages:
               kubernetesServiceEndpoint: 'dev-default-1588463473433'
               command: 'rollout'
               useConfigurationFile: true
-              configuration: 'k8s/deployment'
+              configuration: '$(Pipeline.Workspace)/k8s/deployment'
               arguments: 'restart'
               secretType: 'dockerRegistry'
               containerRegistryType: 'Azure Container Registry'
