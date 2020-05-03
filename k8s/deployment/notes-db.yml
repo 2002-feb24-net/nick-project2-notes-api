@@ -19,6 +19,6 @@ spec:
     spec:
       containers:
       - name: notes-db
-        image: nicholasescalona/2002-notes-db
+        image: 2002-notes-db:rewrite
         ports:
         - containerPort: 5432

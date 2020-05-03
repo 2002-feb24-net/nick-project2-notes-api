@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: notes-api
-        image: nicholasescalona/2002-notes-api
+        image: 2002-notes-api:rewrite
         ports:
         - containerPort: 80
         env:
