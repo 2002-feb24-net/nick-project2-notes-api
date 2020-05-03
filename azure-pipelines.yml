@@ -18,11 +18,11 @@ stages:
     steps:
 
     - task: DockerCompose@0
+      displayName: docker-compose build
       inputs:
         containerregistrytype: 'Container Registry'
         dockerComposeFile: 'docker-compose.prod.yml'
         action: 'Build services'
-      displayName: docker-compose build
 
   - job: test
 
@@ -37,12 +37,13 @@ stages:
     steps:
 
     - task: UseDotNet@2
+      displayName: dotnet 2.1.x
       inputs:
         packageType: 'sdk'
         version: '2.1.x'
-      displayName: dotnet 2.1.x
 
     - task: SonarCloudPrepare@1
+      displayName: sonarcloud analysis prepare
       inputs:
         SonarCloud: 'sonarcloud-escalonn'
         organization: '2002-feb24-net'
@@ -50,18 +51,17 @@ stages:
         projectKey: '2002-feb24-net_nick-project2-notes-api'
         projectName: 'nick-project2-notes-api'
         extraProperties: 'sonar.cs.opencover.reportsPaths=$(Common.TestResultsDirectory)/*/coverage.opencover.xml'
-      displayName: sonarcloud analysis prepare
 
     - task: UseDotNet@2
+      displayName: dotnet $(sdkVersion)
       inputs:
         packageType: 'sdk'
         version: '$(sdkVersion)'
-      displayName: dotnet $(sdkVersion)
 
     - script: dotnet build
         --configuration $(buildConfiguration)
-      workingDirectory: $(solutionPath)
       displayName: dotnet build
+      workingDirectory: $(solutionPath)
 
     - script: dotnet test
         --configuration $(buildConfiguration)
@@ -69,31 +69,31 @@ stages:
         --no-build
         --results-directory $(Common.TestResultsDirectory)
         --settings coverlet.runsettings
-      workingDirectory: $(solutionPath)
       displayName: dotnet test
+      workingDirectory: $(solutionPath)
 
     - task: SonarCloudAnalyze@1
       displayName: sonarcloud analysis run
 
     - task: PublishTestResults@2
+      displayName: test results build publish
       condition: succeededOrFailed()
       inputs:
         testResultsFormat: 'VSTest'
         testResultsFiles: '$(Common.TestResultsDirectory)/*.trx'
-      displayName: test results build publish
 
     - task: PublishCodeCoverageResults@1
+      displayName: code coverage build publish
       condition: succeededOrFailed()
       inputs:
         codeCoverageTool: Cobertura
         summaryFileLocation: $(Common.TestResultsDirectory)/*/coverage.cobertura.xml
-      displayName: code coverage build publish
 
     - task: SonarCloudPublish@1
+      displayName: sonarcloud results build publish
       condition: succeededOrFailed()
       inputs:
         pollingTimeoutSec: '300'
-      displayName: sonarcloud results build publish
 
 - stage: deploy
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
@@ -118,29 +118,30 @@ stages:
           - download: none
 
           - task: DockerCompose@0
+            displayName: docker-compose build
             inputs:
               containerregistrytype: 'Container Registry'
               dockerComposeFile: 'docker-compose.prod.yml'
               action: 'Build services'
-            displayName: docker-compose build
 
           - task: DockerCompose@0
+            displayName: docker-compose push
             inputs:
               containerregistrytype: 'Container Registry'
               dockerRegistryEndpoint: 'dockerhub-nicholasescalona'
               dockerComposeFile: 'docker-compose.prod.yml'
               action: 'Push services'
-            displayName: docker-compose push
 
           - task: KubernetesManifest@0
+            displayName: kubectl apply
             inputs:
               action: 'deploy'
               kubernetesServiceConnection: 'dev-default-1588463473433'
               namespace: 'default'
               manifests: 'k8s/**/*.yml'
-            displayName: kubectl apply
 
           - task: Kubernetes@1
+            displayName: kubectl rollout restart
             inputs:
               connectionType: 'Kubernetes Service Connection'
               kubernetesServiceEndpoint: 'dev-default-1588463473433'
@@ -150,4 +151,3 @@ stages:
               arguments: 'restart'
               secretType: 'dockerRegistry'
               containerRegistryType: 'Azure Container Registry'
-            displayName: kubectl rollout restart
