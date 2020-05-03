@@ -43,6 +43,7 @@ stages:
 
     - publish: k8s
       artifact: k8s
+      displayName: k8s manifest publish
 
   - job: test
 
@@ -135,6 +136,7 @@ stages:
 
           - download: current
             artifact: k8s
+            displayName: k8s manifest download
 
           - task: KubernetesManifest@0
             inputs:
