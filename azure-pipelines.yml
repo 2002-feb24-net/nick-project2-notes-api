@@ -47,8 +47,9 @@ stages:
       displayName: k8s manifest publish
       condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
       inputs:
-        targetPath: k8s
-        artifactName: k8s
+        targetPath: 'k8s'
+        artifact: 'k8s'
+        publishLocation: 'pipeline'
 
   - job: test
 
@@ -138,11 +139,6 @@ stages:
       runOnce:
         deploy:
           steps:
-
-          - task: DownloadPipelineArtifact@2
-            displayName: k8s manifest download
-            inputs:
-              artifact: k8s
 
           - task: KubernetesManifest@0
             displayName: kubectl apply
