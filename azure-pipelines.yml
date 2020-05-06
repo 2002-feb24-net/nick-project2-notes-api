@@ -136,7 +136,7 @@ stages:
             displayName: kubectl apply
             inputs:
               action: 'deploy'
-              kubernetesServiceConnection: 'dev-default-1588463473433'
+              kubernetesServiceConnection: 'dev-default-1588783708961'
               namespace: 'default'
               manifests: 'k8s/**/*.yml'
 
@@ -144,7 +144,8 @@ stages:
             displayName: kubectl rollout restart
             inputs:
               connectionType: 'Kubernetes Service Connection'
-              kubernetesServiceEndpoint: 'dev-default-1588463473433'
+              kubernetesServiceEndpoint: 'dev-default-1588783708961'
+              namespace: 'default'
               command: 'rollout'
               useConfigurationFile: true
               configuration: 'k8s/deployment'
