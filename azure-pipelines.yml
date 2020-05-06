@@ -131,6 +131,7 @@ stages:
           publishLocation: 'pipeline'
 
   - deployment: deploy_dev
+    dependsOn: push
 
     pool:
       vmImage: ubuntu-latest
