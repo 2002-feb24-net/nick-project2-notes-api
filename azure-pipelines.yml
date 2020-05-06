@@ -103,32 +103,32 @@ stages:
 
   - job: push
 
-  pool:
-    vmImage: ubuntu-latest
+    pool:
+      vmImage: ubuntu-latest
 
-  steps:
+    steps:
 
-  - task: DockerCompose@0
-    displayName: docker-compose build
-    inputs:
-      containerregistrytype: 'Container Registry'
-      dockerComposeFile: 'docker-compose.prod.yml'
-      action: 'Build services'
-
-  - task: DockerCompose@0
-    displayName: docker-compose push
-    inputs:
-      containerregistrytype: 'Container Registry'
-      dockerRegistryEndpoint: 'dockerhub-nicholasescalona'
-      dockerComposeFile: 'docker-compose.prod.yml'
-      action: 'Push services'
-
-    - task: PublishPipelineArtifact@1
-      displayName: k8s manifest publish
+    - task: DockerCompose@0
+      displayName: docker-compose build
       inputs:
-        targetPath: 'k8s'
-        artifact: 'k8s'
-        publishLocation: 'pipeline'
+        containerregistrytype: 'Container Registry'
+        dockerComposeFile: 'docker-compose.prod.yml'
+        action: 'Build services'
+
+    - task: DockerCompose@0
+      displayName: docker-compose push
+      inputs:
+        containerregistrytype: 'Container Registry'
+        dockerRegistryEndpoint: 'dockerhub-nicholasescalona'
+        dockerComposeFile: 'docker-compose.prod.yml'
+        action: 'Push services'
+
+      - task: PublishPipelineArtifact@1
+        displayName: k8s manifest publish
+        inputs:
+          targetPath: 'k8s'
+          artifact: 'k8s'
+          publishLocation: 'pipeline'
 
   - deployment: deploy_dev
 
