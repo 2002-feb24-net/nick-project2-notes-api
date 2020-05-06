@@ -123,12 +123,12 @@ stages:
         dockerComposeFile: 'docker-compose.prod.yml'
         action: 'Push services'
 
-      - task: PublishPipelineArtifact@1
-        displayName: k8s manifest publish
-        inputs:
-          targetPath: 'k8s'
-          artifact: 'k8s'
-          publishLocation: 'pipeline'
+    - task: PublishPipelineArtifact@1
+      displayName: k8s manifest publish
+      inputs:
+        targetPath: 'k8s'
+        artifact: 'k8s'
+        publishLocation: 'pipeline'
 
   - deployment: deploy_dev
     dependsOn: push
