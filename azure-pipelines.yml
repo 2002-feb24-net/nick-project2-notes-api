@@ -101,6 +101,35 @@ stages:
 
   jobs:
 
+  - job: push
+
+  pool:
+    vmImage: ubuntu-latest
+
+  steps:
+
+  - task: DockerCompose@0
+    displayName: docker-compose build
+    inputs:
+      containerregistrytype: 'Container Registry'
+      dockerComposeFile: 'docker-compose.prod.yml'
+      action: 'Build services'
+
+  - task: DockerCompose@0
+    displayName: docker-compose push
+    inputs:
+      containerregistrytype: 'Container Registry'
+      dockerRegistryEndpoint: 'dockerhub-nicholasescalona'
+      dockerComposeFile: 'docker-compose.prod.yml'
+      action: 'Push services'
+
+    - task: PublishPipelineArtifact@1
+      displayName: k8s manifest publish
+      inputs:
+        targetPath: 'k8s'
+        artifact: 'k8s'
+        publishLocation: 'pipeline'
+
   - deployment: deploy_dev
 
     pool:
@@ -113,32 +142,13 @@ stages:
         deploy:
           steps:
 
-          - checkout: self
-
-          - download: none
-
-          - task: DockerCompose@0
-            displayName: docker-compose build
-            inputs:
-              containerregistrytype: 'Container Registry'
-              dockerComposeFile: 'docker-compose.prod.yml'
-              action: 'Build services'
-
-          - task: DockerCompose@0
-            displayName: docker-compose push
-            inputs:
-              containerregistrytype: 'Container Registry'
-              dockerRegistryEndpoint: 'dockerhub-nicholasescalona'
-              dockerComposeFile: 'docker-compose.prod.yml'
-              action: 'Push services'
-
           - task: KubernetesManifest@0
             displayName: kubectl apply
             inputs:
               action: 'deploy'
               kubernetesServiceConnection: 'dev-default-1588783708961'
               namespace: 'default'
-              manifests: 'k8s/**/*.yml'
+              manifests: '$(Pipeline.Workspace)/k8s/**/*.yml'
 
           - task: Kubernetes@1
             displayName: kubectl rollout restart
@@ -148,7 +158,7 @@ stages:
               namespace: 'default'
               command: 'rollout'
               useConfigurationFile: true
-              configuration: 'k8s/deployment'
+              configuration: '$(Pipeline.Workspace)/k8s/deployment'
               arguments: 'restart'
               secretType: 'dockerRegistry'
               containerRegistryType: 'Azure Container Registry'
