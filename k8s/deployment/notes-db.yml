@@ -20,5 +20,6 @@ spec:
       containers:
       - name: notes-db
         image: nicholasescalona/2002-notes-db:1.0
+        imagePullPolicy: Always
         ports:
         - containerPort: 5432
