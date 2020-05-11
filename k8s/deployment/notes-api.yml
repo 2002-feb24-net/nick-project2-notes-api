@@ -41,5 +41,9 @@ spec:
           value: https://2002-ng-notes-client-docker.azurewebsites.net
         - name: CorsOrigins__6
           value: http://a219561f758a948d793acb07ca69013c-358843724.us-east-2.elb.amazonaws.com
+        - name: CorsOrigins__7
+          value: http://notes.2002.revaturelabs.com
+        - name: CorsOrigins__8
+          value: https://notes.2002.revaturelabs.com
         - name: UseHttpsRedirection
           value: 'false'
