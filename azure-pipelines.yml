@@ -4,6 +4,10 @@ trigger:
 pr:
 - master
 
+variables:
+  version: '1.0'
+  imageNamePrefix: nicholasescalona/
+
 stages:
 
 - stage: build
@@ -22,7 +26,30 @@ stages:
       inputs:
         containerregistrytype: 'Container Registry'
         dockerComposeFile: 'docker-compose.prod.yml'
+        dockerComposeFileArgs: 'TAG=$(version)-$(Build.BuildNumber)'
         action: 'Build services'
+
+    - task: DockerCompose@0
+      displayName: docker-compose push
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+      inputs:
+        containerregistrytype: 'Container Registry'
+        dockerRegistryEndpoint: 'dockerhub-nicholasescalona'
+        dockerComposeFile: 'docker-compose.prod.yml'
+        dockerComposeFileArgs: 'TAG=$(version)-$(Build.BuildNumber)'
+        action: 'Push services'
+
+    - bash: find k8s/deployment -type f | xargs sed -Ei 's|([a-z0-9._-]*:)rewrite$|$(imageNamePrefix)\1$(version)-$(Build.BuildNumber)|g'
+      displayName: k8s manifest rewrite
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+
+    - task: PublishPipelineArtifact@1
+      displayName: k8s manifest publish
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+      inputs:
+        targetPath: 'k8s'
+        artifact: 'k8s'
+        publishLocation: 'pipeline'
 
   - job: test
 
