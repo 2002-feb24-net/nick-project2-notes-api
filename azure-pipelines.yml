@@ -95,7 +95,7 @@ stages:
       inputs:
         pollingTimeoutSec: '300'
 
-- stage: deploy
+- stage: push
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   dependsOn: build
 
@@ -130,8 +130,13 @@ stages:
         artifact: 'k8s'
         publishLocation: 'pipeline'
 
+- stage: deploy
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  dependsOn: push
+
+  jobs:
+
   - deployment: deploy_dev
-    dependsOn: push
 
     pool:
       vmImage: ubuntu-latest
