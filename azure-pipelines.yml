@@ -128,7 +128,37 @@ stages:
 
   jobs:
 
+  - job: push
+
+    pool:
+      vmImage: ubuntu-latest
+
+    steps:
+
+    - task: DockerCompose@0
+      displayName: docker-compose build
+      inputs:
+        containerregistrytype: 'Container Registry'
+        dockerComposeFile: 'docker-compose.prod.yml'
+        action: 'Build services'
+
+    - task: DockerCompose@0
+      displayName: docker-compose push
+      inputs:
+        containerregistrytype: 'Container Registry'
+        dockerRegistryEndpoint: 'dockerhub-nicholasescalona'
+        dockerComposeFile: 'docker-compose.prod.yml'
+        action: 'Push services'
+
+    - task: PublishPipelineArtifact@1
+      displayName: k8s manifest publish
+      inputs:
+        targetPath: 'k8s'
+        artifact: 'k8s'
+        publishLocation: 'pipeline'
+
   - deployment: deploy_dev
+    dependsOn: push
 
     pool:
       vmImage: ubuntu-latest
@@ -144,7 +174,7 @@ stages:
             displayName: kubectl apply
             inputs:
               action: 'deploy'
-              kubernetesServiceConnection: 'dev-default-1588463473433'
+              kubernetesServiceConnection: 'dev-default-1588783708961'
               namespace: 'default'
               manifests: '$(Pipeline.Workspace)/k8s/**/*.yml'
 
@@ -152,7 +182,8 @@ stages:
             displayName: kubectl rollout restart
             inputs:
               connectionType: 'Kubernetes Service Connection'
-              kubernetesServiceEndpoint: 'dev-default-1588463473433'
+              kubernetesServiceEndpoint: 'dev-default-1588783708961'
+              namespace: 'default'
               command: 'rollout'
               useConfigurationFile: true
               configuration: '$(Pipeline.Workspace)/k8s/deployment'

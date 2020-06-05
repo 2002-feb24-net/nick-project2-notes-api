@@ -20,5 +20,6 @@ spec:
       containers:
       - name: notes-db
         image: 2002-notes-db:rewrite
+        imagePullPolicy: Always
         ports:
         - containerPort: 5432
