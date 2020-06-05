@@ -65,10 +65,12 @@ stages:
 
     - script: dotnet test
         --configuration $(buildConfiguration)
+        --collect "XPlat Code Coverage"
         --logger trx
         --no-build
         --results-directory $(Common.TestResultsDirectory)
-        --settings coverlet.runsettings
+        --
+        DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura,opencover
       displayName: dotnet test
       workingDirectory: $(solutionPath)
 
